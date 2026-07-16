@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JK Chemical Works — ERP</title>
+<style>
+  :root{
+    --ink:#14232b;
+    --ink-soft:#3d545e;
+    --paper:#f5f3ee;
+    --panel:#ffffff;
+    --line:#dcd6c8;
+    --teal:#1f5f5b;
+    --teal-dark:#123f3c;
+    --amber:#c07a2b;
+    --amber-soft:#f4e3c8;
+    --red:#a13d3d;
+    --red-soft:#f6e0df;
+    --green:#3d7a52;
+    --green-soft:#e1efe3;
+    --mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;background:var(--paper);color:var(--ink);font-family:var(--sans);}
+  body{display:flex;min-height:100vh;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:#c9c2ae;border-radius:4px;}
+
+  /* ---------- Sidebar ---------- */
+  #sidebar{
+    width:208px;flex:none;background:var(--teal-dark);color:#e8ede9;
+    display:flex;flex-direction:column;padding:18px 0;
+  }
+  .brand{padding:0 18px 16px 18px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:10px;}
+  .brand .name{font-weight:700;font-size:15px;letter-spacing:.3px;color:#fff;}
+  .brand .sub{font-size:10.5px;color:#9fbdb6;text-transform:uppercase;letter-spacing:1.2px;margin-top:3px;}
+  nav{flex:1;overflow-y:auto;}
+  .navgroup{padding:10px 12px 2px 18px;font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#7fa39b;}
+  .navitem{
+    display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;cursor:pointer;
+    color:#cfe0da;border-left:3px solid transparent;
+  }
+  .navitem:hover{background:rgba(255,255,255,.05);}
+  .navitem.active{background:rgba(255,255,255,.09);border-left-color:var(--amber);color:#fff;font-weight:600;}
+  .navitem .dot{width:6px;height:6px;border-radius:50%;background:#4a726b;flex:none;}
+  .navitem.active .dot{background:var(--amber);}
+  .sidebar-foot{padding:12px 18px 0 18px;border-top:1px solid rgba(255,255,255,.1);font-size:10.5px;color:#7fa39b;}
+
+  /* ---------- Main ---------- */
+  #main{flex:1;min-width:0;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+  header.topbar{
+    padding:16px 28px;border-bottom:1px solid var(--line);background:var(--panel);
+    display:flex;align-items:center;justify-content:space-between;flex:none;
+  }
+  header.topbar h1{font-size:18px;margin:0;font-weight:700;}
+  header.topbar .meta{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  #content{flex:1;overflow-y:auto;padding:24px 28px 60px 28px;}
+
+  /* ---------- Generic UI ---------- */
+  .row{display:flex;gap:12px;flex-wrap:wrap;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;background:var(--teal);color:#fff;border:none;
+    padding:8px 14px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);
+  }
+  .btn:hover{background:var(--teal-dark);}
+  .btn.secondary{background:var(--panel);color:var(--ink);border:1px solid var(--line);}
+  .btn.secondary:hover{background:#f0ede4;}
+  .btn.danger{background:var(--red);}
+  .btn.danger:hover{background:#822f2f;}
+  .btn.sm{padding:4px 9px;font-size:11.5px;border-radius:5px;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft);
+    border-bottom:2px solid var(--line);padding:8px 10px;white-space:nowrap;
+  }
+  tbody td{padding:9px 10px;border-bottom:1px solid #ece7db;white-space:nowrap;}
+  tbody tr:hover{background:#faf8f2;}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums;}
+  .right{text-align:right;}
+
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge.green{background:var(--green-soft);color:var(--green);}
+  .badge.amber{background:var(--amber-soft);color:var(--amber);}
+  .badge.red{background:var(--red-soft);color:var(--red);}
+  .badge.gray{background:#eceae2;color:#5c5646;}
+
+  .section-title{font-size:14px;font-weight:700;margin:0 0 10px 0;display:flex;align-items:center;justify-content:space-between;}
+  .empty{padding:26px;text-align:center;color:var(--ink-soft);font-size:13px;border:1px dashed var(--line);border-radius:8px;}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(20,35,43,.45);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow-y:auto;}
+  .modal{background:var(--panel);border-radius:10px;width:100%;max-width:560px;padding:22px 24px;box-shadow:0 20px 50px rgba(0,0,0,.25);}
+  .modal h2{margin:0 0 4px 0;font-size:16px;}
+  .modal .modal-sub{font-size:12px;color:var(--ink-soft);margin-bottom:16px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-bottom:4px;}
+  .field input,.field select,.field textarea{
+    width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:var(--sans);background:#fdfcf9;
+  }
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--teal);outline-offset:-1px;background:#fff;}
+  .field-row{display:flex;gap:10px;}
+  .field-row .field{flex:1;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+  .hint{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+  .error-text{font-size:12px;color:var(--red);margin-top:8px;background:var(--red-soft);padding:8px 10px;border-radius:6px;}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;}
+  .kpi .label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);}
+  .kpi .value{font-size:24px;font-weight:700;margin-top:4px;font-family:var(--mono);}
+  .kpi .sub{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+
+  .toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .toolbar input[type=search],.toolbar select{
+    padding:7px 10px;border:1px solid var(--line);border-radius:6px;font-size:12.5px;font-family:var(--sans);background:#fff;
+  }
+  .spacer{flex:1;}
+  .tag-line{font-size:11px;color:var(--ink-soft);}
+  .toast{
+    position:fixed;bottom:20px;right:20px;background:var(--teal-dark);color:#fff;padding:11px 18px;border-radius:7px;
+    font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:100;
+  }
+  .toast.error{background:var(--red);}
+  .flow-note{font-size:11.5px;color:var(--ink-soft);background:#f0ede2;border-radius:6px;padding:8px 10px;margin-bottom:14px;}
+  .stack-sm > * + *{margin-top:6px;}
+</style>
+</head>
+<body>
+<div id="sidebar">
+  <div class="brand">
+    <div class="name">JK Chemical Works</div>
+    <div class="sub">Trading ERP · Prototype</div>
+  </div>
+  <nav id="navList"></nav>
+  <div class="sidebar-foot" id="sidebarFoot">Local prototype data</div>
+</div>
+<div id="main">
+  <header class="topbar">
+    <div>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="meta" id="pageMeta"></div>
+    </div>
+    <div class="row" id="topActions"></div>
+  </header>
+  <div id="content"></div>
+</div>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<script>
+/* ============================= STATE ============================= */
+const STORAGE_KEY = 'jkchem-erp-state-v1';
+
+function seedState(){
+  return {
+    seq:{product:0,warehouse:0,ledger:0,transfer:0,packing:0,customer:0,sale:0,payment:0,dispatch:0},
+    currentUser:{name:'Rajeev (Owner)', role:'Administrator'},
+    products:[],
+    warehouses:[],
+    ledger:[],
+    transfers:[],
+    packing:[],
+    customers:[],
+    sales:[],
+    payments:[],
+    dispatch:[]
+  };
+}
+
+let state = seedState();
+let currentRoute = 'dashboard';
+let saveTimer = null;
+
+function persist(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      await window.storage.set('state', JSON.stringify(state), false);
+    }catch(e){ console.warn('storage save failed', e); }
+  }, 250);
+}
+
+async function loadState(){
+  try{
+    const res = await window.storage.get('state', false);
+    if(res && res.value){
+      const parsed = JSON.parse(res.value);
+      state = Object.assign(seedState(), parsed);
+      return true;
+    }
+  }catch(e){ /* no saved state yet */ }
+  return false;
+}
+
+/* ============================= HELPERS ============================= */
+function pad(n,w=4){ return String(n).padStart(w,'0'); }
+function nextSeq(key){ state.seq[key] = (state.seq[key]||0)+1; return state.seq[key]; }
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function nowIso(){ return new Date().toISOString(); }
+function fmtDate(d){ if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+function fmtDateTime(d){ if(!d) return '—'; const dt=new Date(d); return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short'}) + ', ' + dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}); }
+function money(n){ n = Number(n)||0; return '₹' + n.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function moneyShort(n){ n=Number(n)||0; return '₹' + n.toLocaleString('en-IN',{maximumFractionDigits:0}); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function byId(arr,id){ return arr.find(x=>x.id===id); }
+function daysBetween(a,b){ return Math.floor((new Date(b) - new Date(a)) / 86400000); }
+
+function toast(msg, isError){
+  const root = document.getElementById('toastRoot');
+  const el = document.createElement('div');
+  el.className = 'toast' + (isError?' error':'');
+  el.textContent = msg;
+  root.appendChild(el);
+  setTimeout(()=>el.remove(), 3200);
+}
+
+/* ---------- Stock engine ---------- */
+function stockAt(productId, warehouseId){
+  let q = 0;
+  for(const l of state.ledger){
+    if(l.productId===productId && l.warehouseId===warehouseId){
+      q += l.dir==='in' ? l.qty : -l.qty;
+    }
+  }
+  return q;
+}
+function totalStock(productId){
+  let q=0;
+  for(const l of state.ledger){ if(l.productId===productId) q += l.dir==='in'?l.qty:-l.qty; }
+  return q;
+}
+function warehouseStockValue(warehouseId){
+  let v=0;
+  for(const p of state.products){
+    const q = stockAt(p.id, warehouseId);
+    v += q * (p.purchasePrice||0);
+  }
+  return v;
+}
+function totalStockValue(){
+  let v=0;
+  for(const p of state.products) v += totalStock(p.id) * (p.purchasePrice||0);
+  return v;
+}
+function addLedger({productId,warehouseId,qty,dir,type,refNo,remarks}){
+  const id = 'L' + pad(nextSeq('ledger'));
+  state.ledger.push({
+    id, date: todayStr(), ts: nowIso(),
+    productId, warehouseId, qty:Number(qty), dir, type, refNo,
+    user: state.currentUser.name, remarks: remarks||''
+  });
+  return id;
+}
+
+/* ---------- Customer ledger / outstanding ---------- */
+function customerInvoices(customerId){ return state.sales.filter(s=>s.customerId===customerId); }
+function customerPayments(customerId){ return state.payments.filter(p=>p.customerId===customerId); }
+function invoicePaid(invoiceId){
+  return state.payments.filter(p=>p.invoiceId===invoiceId).reduce((s,p)=>s+Number(p.amount),0);
+}
+function invoiceBalance(inv){ return inv.total - invoicePaid(inv.id); }
+function customerOutstanding(customerId){
+  return customerInvoices(customerId).reduce((s,inv)=> s + invoiceBalance(inv), 0);
+}
+function customerTotalBilled(customerId){
+  return customerInvoices(customerId).reduce((s,inv)=>s+inv.total,0);
+}
+function ageBucket(days){
+  if(days<=30) return '0-30';
+  if(days<=60) return '31-60';
+  if(days<=90) return '61-90';
+  return '90+';
+}
+
+/* ============================= NAV / ROUTER ============================= */
+const NAV = [
+  {key:'dashboard', label:'Dashboard', group:'Overview'},
+  {key:'products', label:'Products', group:'Inventory'},
+  {key:'stock', label:'Stock & Ledger', group:'Inventory'},
+  {key:'warehouses', label:'Warehouses', group:'Warehouse'},
+  {key:'transfers', label:'Transfers', group:'Warehouse'},
+  {key:'packing', label:'Loose Packing', group:'Warehouse'},
+  {key:'customers', label:'Customers', group:'Sales'},
+  {key:'sales', label:'Sales Invoices', group:'Sales'},
+  {key:'payments', label:'Payment Collection', group:'Sales'},
+  {key:'dispatch', label:'Dispatch', group:'Dispatch'},
+  {key:'reports', label:'Reports', group:'Reports'},
+];
+const PAGE_META = {
+  dashboard:'Real-time overview of stock, sales and collections',
+  products:'Product master — units, pricing, minimum stock',
+  stock:'Warehouse-wise stock and full transaction ledger',
+  warehouses:'Warehouse master and per-location stock value',
+  transfers:'Warehouse → Shop stock transfers',
+  packing:'Bulk bag to loose pack conversion',
+  customers:'Customer master, credit terms and ledger',
+  sales:'Sales invoices, cash and credit',
+  payments:'Collections against customer invoices',
+  dispatch:'Transport, LR tracking and dispatch accountability',
+  reports:'Stock, sales, outstanding, GST and dispatch reports'
+};
+
+function renderNav(){
+  const groups = [...new Set(NAV.map(n=>n.group))];
+  let html = '';
+  for(const g of groups){
+    html += `<div class="navgroup">${g}</div>`;
+    for(const item of NAV.filter(n=>n.group===g)){
+      html += `<div class="navitem ${item.key===currentRoute?'active':''}" onclick="go('${item.key}')">
+        <span class="dot"></span>${item.label}
+      </div>`;
+    }
+  }
+  document.getElementById('navList').innerHTML = html;
+  document.getElementById('sidebarFoot').innerHTML = `Logged in as<br><strong style="color:#fff">${esc(state.currentUser.name)}</strong> · ${esc(state.currentUser.role)}`;
+}
+
+function go(routeKey){
+  currentRoute = routeKey;
+  renderNav();
+  document.getElementById('pageTitle').textContent = NAV.find(n=>n.key===routeKey).label;
+  document.getElementById('pageMeta').textContent = PAGE_META[routeKey]||'';
+  render();
+}
+
+function render(){
+  const c = document.getElementById('content');
+  const actions = document.getElementById('topActions');
+  actions.innerHTML = '';
+  switch(currentRoute){
+    case 'dashboard': c.innerHTML = renderDashboard(); break;
+    case 'products': c.innerHTML = renderProducts(actions); break;
+    case 'stock': c.innerHTML = renderStock(); break;
+    case 'warehouses': c.innerHTML = renderWarehouses(actions); break;
+    case 'transfers': c.innerHTML = renderTransfers(actions); break;
+    case 'packing': c.innerHTML = renderPacking(actions); break;
+    case 'customers': c.innerHTML = renderCustomers(actions); break;
+    case 'sales': c.innerHTML = renderSales(actions); break;
+    case 'payments': c.innerHTML = renderPayments(actions); break;
+    case 'dispatch': c.innerHTML = renderDispatch(actions); break;
+    case 'reports': c.innerHTML = renderReports(); break;
+    default: c.innerHTML = '<div class="empty">Not found</div>';
+  }
+}
+
+/* ============================= MODAL SYSTEM ============================= */
+function openModal(title, sub, bodyHtml, footerHtml){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = `
+    <div class="overlay" id="overlayEl" onclick="if(event.target.id==='overlayEl')closeModal()">
+      <div class="modal">
+        <h2>${esc(title)}</h2>
+        ${sub?`<div class="modal-sub">${sub}</div>`:''}
+        <div id="modalBody">${bodyHtml}</div>
+        <div id="modalError"></div>
+        <div class="modal-actions">
+          ${footerHtml || `<button class="btn secondary" onclick="closeModal()">Cancel</button>`}
+        </div>
+      </div>
+    </div>`;
+}
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+function modalErr(msg){
+  document.getElementById('modalError').innerHTML = msg ? `<div class="error-text">${esc(msg)}</div>` : '';
+}
+function fv(id){ const el=document.getElementById(id); return el ? el.value : ''; }
+function fvNum(id){ return Number(fv(id))||0; }
+
+/* ============================= OPTION BUILDERS ============================= */
+function productOptions(sel){
+  return state.products.filter(p=>p.status==='Active').map(p=>
+    `<option value="${p.id}" ${p.id===sel?'selected':''}>${esc(p.name)} (${esc(p.sellingUnit)})</option>`).join('');
+}
+function warehouseOptions(sel, includeShop=true){
+  return state.warehouses.filter(w=>w.status==='Active' && (includeShop || !w.isShop)).map(w=>
+    `<option value="${w.id}" ${w.id===sel?'selected':''}>${esc(w.name)}${w.isShop?' (Shop)':''}</option>`).join('');
+}
+function customerOptions(sel){
+  return state.customers.filter(c=>c.status==='Active').map(c=>
+    `<option value="${c.id}" ${c.id===sel?'selected':''}>${esc(c.name)} — ${esc(c.code)}</option>`).join('');
+}
+function pname(id){ const p=byId(state.products,id); return p?p.name:'—'; }
+function wname(id){ const w=byId(state.warehouses,id); return w?w.name:'—'; }
+function cname(id){ const c=byId(state.customers,id); return c?c.name:'—'; }
+
+/* ============================= DEMO SEED ============================= */
+function seedDemoData(){
+  const w1 = 'WH'+pad(nextSeq('warehouse'));
+  state.warehouses.push({id:w1,name:'Warehouse A — Sector 34',address:'Plot 12, Sector 34 Industrial Area, Gurugram',contact:'Suresh Kumar',phone:'9811122233',isShop:false,status:'Active'});
+  const w2 = 'WH'+pad(nextSeq('warehouse'));
+  state.warehouses.push({id:w2,name:'Warehouse B — Manesar',address:'Plot 88, IMT Manesar',contact:'Devendra Singh',phone:'9811144455',isShop:false,status:'Active'});
+  const shop = 'WH'+pad(nextSeq('warehouse'));
+  state.warehouses.push({id:shop,name:'Retail Shop — Sadar Bazar',address:'14 Sadar Bazar Road, Gurugram',contact:'Anil Mehta',phone:'9811166677',isShop:true,status:'Active'});
+
+  function P(name,category,pu,su,pp,sp,min){
+    const id='PR'+pad(nextSeq('product'));
+    state.products.push({id,name,category,purchaseUnit:pu,sellingUnit:su,purchasePrice:pp,sellingPrice:sp,minStock:min,status:'Active'});
+    return id;
+  }
+  const caustic50 = P('Caustic Soda Flakes 50kg Bag','Industrial Chemicals','Bag (50kg)','Bag (50kg)',1450,1650,20);
+  const caustic1 = P('Caustic Soda Flakes 1kg Pack','Industrial Chemicals','Pack (1kg)','Pack (1kg)',35,55,100);
+  const citric25 = P('Citric Acid 25kg Bag','Food Grade Chemicals','Bag (25kg)','Bag (25kg)',2100,2350,15);
+  const citric500 = P('Citric Acid 500g Pack','Food Grade Chemicals','Pack (500g)','Pack (500g)',45,70,150);
+  const soda50 = P('Sodium Bicarbonate 50kg Bag','Industrial Chemicals','Bag (50kg)','Bag (50kg)',1200,1380,25);
+  const hcl35 = P('Hydrochloric Acid 35kg Carboy','Industrial Chemicals','Carboy (35kg)','Carboy (35kg)',650,780,30);
+
+  addLedger({productId:caustic50,warehouseId:w1,qty:120,dir:'in',type:'Opening Stock',refNo:'OPEN',remarks:'Opening balance'});
+  addLedger({productId:citric25,warehouseId:w1,qty:60,dir:'in',type:'Opening Stock',refNo:'OPEN',remarks:'Opening balance'});
+  addLedger({productId:soda50,warehouseId:w2,qty:80,dir:'in',type:'Opening Stock',refNo:'OPEN',remarks:'Opening balance'});
+  addLedger({productId:hcl35,warehouseId:w2,qty:40,dir:'in',type:'Opening Stock',refNo:'OPEN',remarks:'Opening balance'});
+  addLedger({productId:caustic1,warehouseId:w1,qty:30,dir:'in',type:'Opening Stock',refNo:'OPEN',remarks:'Opening balance'});
+  addLedger({productId:citric500,warehouseId:w1,qty:20,dir:'in',type:'Opening Stock',refNo:'OPEN',remarks:'Opening balance'});
+
+  function C(code,name,biz,gstNo,pan,phone,limit,days,gstReq){
+    const id='CU'+pad(nextSeq('customer'));
+    state.customers.push({id,code,name,businessName:biz,gst:gstNo,pan,phone,email:'',address:'',creditLimit:limit,creditDays:days,gstRequired:gstReq,status:'Active'});
+    return id;
+  }
+  const sharma = C('CUS-01','Sharma Traders','Sharma Traders & Co.','06AAACS1234F1Z5','AAACS1234F','9871234567',200000,30,true);
+  const verma = C('CUS-02','Verma Hardware Store','Verma Hardware Store','','','9899988776',50000,15,false);
+
+  // Packing: bulk -> loose at W1
+  const packId = 'PKG'+pad(nextSeq('packing'));
+  state.packing.push({id:packId,packNo:'PKG-'+pad(state.seq.packing),date:todayStr(),warehouseId:w1,bulkProductId:caustic50,bulkQty:50,packSizeLabel:'1kg',numPacks:45,resultProductId:caustic1,staff:'Suresh Kumar',remarks:'Standard conversion, ~10% handling loss'});
+  addLedger({productId:caustic50,warehouseId:w1,qty:1,dir:'out',type:'Packing',refNo:packId,remarks:'Consumed for packing '+packId});
+  addLedger({productId:caustic1,warehouseId:w1,qty:45,dir:'in',type:'Packing',refNo:packId,remarks:'Produced by packing '+packId});
+
+  // Transfer loose caustic to shop
+  const trId = 'TRF'+pad(nextSeq('transfer'));
+  state.transfers.push({id:trId,transferNo:'TRF-'+pad(state.seq.transfer),date:todayStr(),fromWarehouseId:w1,toWarehouseId:shop,productId:caustic1,qty:40,unit:'Pack (1kg)',staff:'Suresh Kumar',remarks:'Weekly shop replenishment'});
+  addLedger({productId:caustic1,warehouseId:w1,qty:40,dir:'out',type:'Transfer',refNo:trId,remarks:'Transfer to Retail Shop'});
+  addLedger({productId:caustic1,warehouseId:shop,qty:40,dir:'in',type:'Transfer',refNo:trId,remarks:'Received from Warehouse A'});
+  const trId2 = 'TRF'+pad(nextSeq('transfer'));
+  state.transfers.push({id:trId2,transferNo:'TRF-'+pad(state.seq.transfer),date:todayStr(),fromWarehouseId:w1,toWarehouseId:shop,productId:citric500,qty:18,unit:'Pack (500g)',staff:'Suresh Kumar',remarks:'Weekly shop replenishment'});
+  addLedger({productId:citric500,warehouseId:w1,qty:18,dir:'out',type:'Transfer',refNo:trId2,remarks:'Transfer to Retail Shop'});
+  addLedger({productId:citric500,warehouseId:shop,qty:18,dir:'in',type:'Transfer',refNo:trId2,remarks:'Received from Warehouse A'});
+
+  // Sale to Sharma Traders (credit, GST) from shop
+  const items = [
+    {productId:caustic1, qty:20, rate:55, discountPct:0},
+    {productId:citric500, qty:10, rate:70, discountPct:5},
+  ];
+  let sub=0; for(const it of items){ const line = it.qty*it.rate; sub += line - (line*it.discountPct/100); }
+  const gstPct = 18; const gstAmt = sub*gstPct/100; const total = sub+gstAmt;
+  const saleId='SA'+pad(nextSeq('sale'));
+  state.sales.push({id:saleId,invoiceNo:'INV-'+pad(state.seq.sale),date:todayStr(),customerId:sharma,warehouseId:shop,salesman:'Anil Mehta',paymentType:'Credit',gstApplied:true,gstPct,items,subtotal:sub,gstAmt,total});
+  for(const it of items){
+    addLedger({productId:it.productId,warehouseId:shop,qty:it.qty,dir:'out',type:'Sale',refNo:saleId,remarks:'Sold via '+state.sales[state.sales.length-1].invoiceNo});
+  }
+
+  // Partial payment
+  const payId='PY'+pad(nextSeq('payment'));
+  state.payments.push({id:payId,receiptNo:'RCPT-'+pad(state.seq.payment),date:todayStr(),customerId:sharma,invoiceId:saleId,amount:Math.round(total*0.4),mode:'UPI',refNo:'UPI2201938451',collectedBy:'Anil Mehta',remarks:'Advance against invoice'});
+
+  // Dispatch
+  const dsId='DS'+pad(nextSeq('dispatch'));
+  state.dispatch.push({id:dsId,dispatchNo:'DSP-'+pad(state.seq.dispatch),invoiceId:saleId,customerId:sharma,destination:'Sharma Traders, Old Anaj Mandi, Gurugram',transportCompany:'Bharat Roadways',vehicleNo:'HR55AB1234',driverName:'Ram Lal',driverPhone:'9812233445',lrNo:'LR-88231',freight:600,freightType:'To Pay',status:'Dispatched',staffName:'Anil Mehta',staffId:'STF-02',dispatchTime:nowIso(),approvedBy:'Rajeev (Owner)',remarks:''});
+}
+
+/* ============================= DASHBOARD ============================= */
+function renderDashboard(){
+  const today = todayStr();
+  const todaysSales = state.sales.filter(s=>s.date===today).reduce((s,x)=>s+x.total,0);
+  const todaysCollections = state.payments.filter(p=>p.date===today).reduce((s,x)=>s+Number(x.amount),0);
+  const totalOutstanding = state.customers.reduce((s,c)=>s+customerOutstanding(c.id),0);
+  const stockValue = totalStockValue();
+  const lowStock = state.products.filter(p=>totalStock(p.id) <= p.minStock);
+  const pendingDispatch = state.dispatch.filter(d=>d.status==='Ready'||d.status==='Dispatched'||d.status==='Transit').length;
+  const transfersToday = state.transfers.filter(t=>t.date===today).length;
+  const packingToday = state.packing.filter(p=>p.date===today).length;
+
+  const kpis = [
+    {label:"Today's Sales", value: money(todaysSales), sub: state.sales.filter(s=>s.date===today).length+' invoices'},
+    {label:"Today's Collections", value: money(todaysCollections), sub: state.payments.filter(p=>p.date===today).length+' receipts'},
+    {label:'Total Outstanding', value: money(totalOutstanding), sub: state.customers.length+' customers'},
+    {label:'Current Stock Value', value: moneyShort(stockValue), sub: state.products.length+' products'},
+    {label:'Low / Out of Stock', value: lowStock.length, sub: 'below minimum level'},
+    {label:'Pending Dispatch', value: pendingDispatch, sub: 'not yet delivered'},
+    {label:'Transfers Today', value: transfersToday, sub: state.transfers.length+' total'},
+    {label:'Packing Runs Today', value: packingToday, sub: state.packing.length+' total'},
+  ];
+
+  const recent = [
+    ...state.sales.map(s=>({ts:s.date+'T12:00',text:`Sales invoice ${s.invoiceNo} to ${cname(s.customerId)}`,amt:money(s.total),type:'Sale'})),
+    ...state.payments.map(p=>({ts:p.date+'T12:01',text:`Payment ${p.receiptNo} from ${cname(p.customerId)}`,amt:money(p.amount),type:'Payment'})),
+    ...state.transfers.map(t=>({ts:t.date+'T09:00',text:`Transfer ${t.transferNo}: ${pname(t.productId)} → ${wname(t.toWarehouseId)}`,amt:t.qty+' units',type:'Transfer'})),
+    ...state.packing.map(p=>({ts:p.date+'T08:00',text:`Packing ${p.packNo}: ${pname(p.bulkProductId)} → ${pname(p.resultProductId)}`,amt:p.numPacks+' packs',type:'Packing'})),
+    ...state.dispatch.map(d=>({ts:(d.dispatchTime||d.date), text:`Dispatch ${d.dispatchNo} to ${cname(d.customerId)}`, amt:d.status, type:'Dispatch'})),
+  ].sort((a,b)=> new Date(b.ts)-new Date(a.ts)).slice(0,8);
+
+  return `
+    <div class="kpi-grid">
+      ${kpis.map(k=>`<div class="kpi"><div class="label">${k.label}</div><div class="value">${k.value}</div><div class="sub">${k.sub}</div></div>`).join('')}
+    </div>
+    <div class="row" style="align-items:flex-start;">
+      <div class="card" style="flex:1.4;min-width:340px;">
+        <div class="section-title">Recent activity</div>
+        ${recent.length ? `<table><thead><tr><th>When</th><th>Type</th><th>Details</th><th class="right">Amount</th></tr></thead><tbody>
+          ${recent.map(r=>`<tr><td>${fmtDateTime(r.ts)}</td><td><span class="badge gray">${r.type}</span></td><td>${esc(r.text)}</td><td class="right num">${esc(r.amt)}</td></tr>`).join('')}
+        </tbody></table>` : `<div class="empty">No activity yet. Start by adding stock or creating an invoice.</div>`}
+      </div>
+      <div class="card" style="flex:1;min-width:280px;">
+        <div class="section-title">Low stock alert</div>
+        ${lowStock.length ? `<table><thead><tr><th>Product</th><th class="right">Stock</th><th class="right">Min</th></tr></thead><tbody>
+          ${lowStock.map(p=>{ const st=totalStock(p.id); return `<tr><td>${esc(p.name)}</td><td class="right num">${st}</td><td class="right num">${p.minStock}</td></tr>`; }).join('')}
+        </tbody></table>` : `<div class="empty">All products are above minimum stock.</div>`}
+      </div>
+    </div>`;
+}
+
+/* ============================= PRODUCTS ============================= */
+function renderProducts(actions){
+  actions.innerHTML = `<button class="btn" onclick="openProductModal()">+ New Product</button>`;
+  if(!state.products.length) return `<div class="empty">No products yet. Click "New Product" to add your first item.</div>`;
+  const rows = state.products.map(p=>{
+    const st = totalStock(p.id);
+    const low = st <= p.minStock;
+    return `<tr>
+      <td>${esc(p.id)}</td>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td>${esc(p.category)}</td>
+      <td>${esc(p.purchaseUnit)}</td>
+      <td class="right num">${money(p.purchasePrice)}</td>
+      <td class="right num">${money(p.sellingPrice)}</td>
+      <td class="right num">${st}${low?' <span class="badge red">Low</span>':''}</td>
+      <td class="right num">${p.minStock}</td>
+      <td>${p.status==='Active'?'<span class="badge green">Active</span>':'<span class="badge gray">Inactive</span>'}</td>
+      <td>
+        <button class="btn secondary sm" onclick="openStockInModal('${p.id}')">Stock In</button>
+        <button class="btn secondary sm" onclick="openProductModal('${p.id}')">Edit</button>
+      </td>
+    </tr>`;
+  }).join('');
+  return `<div class="card"><table><thead><tr>
+    <th>Code</th><th>Name</th><th>Category</th><th>Purchase Unit</th><th class="right">Purchase Price</th>
+    <th class="right">Selling Price</th><th class="right">Total Stock</th><th class="right">Min Stock</th><th>Status</th><th>Actions</th>
+  </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function openProductModal(id){
+  const p = id ? byId(state.products,id) : null;
+  const body = `
+    <div class="field"><label>Product Name</label><input id="f_name" value="${p?esc(p.name):''}" placeholder="e.g. Caustic Soda Flakes 50kg Bag"></div>
+    <div class="field-row">
+      <div class="field"><label>Category</label><input id="f_cat" value="${p?esc(p.category):''}" placeholder="e.g. Industrial Chemicals"></div>
+      <div class="field"><label>Status</label><select id="f_status">
+        <option ${(!p||p.status==='Active')?'selected':''}>Active</option>
+        <option ${p&&p.status==='Inactive'?'selected':''}>Inactive</option>
+      </select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Purchase Unit</label><input id="f_pu" value="${p?esc(p.purchaseUnit):''}" placeholder="e.g. Bag (50kg)"></div>
+      <div class="field"><label>Selling Unit</label><input id="f_su" value="${p?esc(p.sellingUnit):''}" placeholder="e.g. Bag (50kg)"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Purchase Price (₹)</label><input id="f_pp" type="number" step="0.01" value="${p?p.purchasePrice:''}"></div>
+      <div class="field"><label>Selling Price (₹)</label><input id="f_sp" type="number" step="0.01" value="${p?p.sellingPrice:''}"></div>
+      <div class="field"><label>Minimum Stock</label><input id="f_min" type="number" value="${p?p.minStock:0}"></div>
+    </div>`;
+  openModal(p?'Edit Product':'New Product', p?`Editing ${esc(p.id)}`:'Add a new product to the master list', body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveProduct(${p?`'${p.id}'`:'null'})">Save Product</button>`);
+}
+
+function saveProduct(id){
+  const name=fv('f_name').trim(), cat=fv('f_cat').trim(), pu=fv('f_pu').trim(), su=fv('f_su').trim();
+  const pp=fvNum('f_pp'), sp=fvNum('f_sp'), min=fvNum('f_min'), status=fv('f_status');
+  if(!name) return modalErr('Product name is required.');
+  if(!pu || !su) return modalErr('Purchase and selling units are required.');
+  if(pp<0 || sp<0) return modalErr('Prices cannot be negative.');
+  if(id){
+    const p = byId(state.products,id);
+    Object.assign(p,{name,category:cat,purchaseUnit:pu,sellingUnit:su,purchasePrice:pp,sellingPrice:sp,minStock:min,status});
+    toast('Product updated.');
+  } else {
+    const newId = 'PR'+pad(nextSeq('product'));
+    state.products.push({id:newId,name,category:cat,purchaseUnit:pu,sellingUnit:su,purchasePrice:pp,sellingPrice:sp,minStock:min,status});
+    toast('Product created.');
+  }
+  persist(); closeModal(); render();
+}
+
+function openStockInModal(productId){
+  const p = byId(state.products,productId);
+  const body = `
+    <div class="flow-note">Stock In records a purchase receipt into a warehouse. This increases warehouse stock and is logged permanently in the ledger.</div>
+    <div class="field"><label>Product</label><input value="${esc(p.name)}" disabled></div>
+    <div class="field-row">
+      <div class="field"><label>Warehouse</label><select id="f_wh">${warehouseOptions(null,false)}</select></div>
+      <div class="field"><label>Quantity (${esc(p.purchaseUnit)})</label><input id="f_qty" type="number" min="0" step="0.01"></div>
+    </div>
+    <div class="field"><label>Supplier / Reference</label><input id="f_ref" placeholder="e.g. Supplier invoice number"></div>
+    <div class="field"><label>Remarks</label><input id="f_rem" placeholder="optional"></div>`;
+  openModal('Stock In — Purchase Receipt', null, body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="submitStockIn('${productId}')">Record Stock In</button>`);
+}
+
+function submitStockIn(productId){
+  const wh = fv('f_wh'), qty = fvNum('f_qty'), ref = fv('f_ref').trim(), rem = fv('f_rem').trim();
+  if(!wh) return modalErr('Select a warehouse.');
+  if(qty<=0) return modalErr('Quantity must be greater than zero.');
+  addLedger({productId,warehouseId:wh,qty,dir:'in',type:'Purchase',refNo:ref||'—',remarks:rem});
+  persist(); closeModal(); render();
+  toast('Stock in recorded: +'+qty+' '+byId(state.products,productId).purchaseUnit+' at '+wname(wh)+'.');
+}
+
+/* ============================= STOCK & LEDGER ============================= */
+function renderStock(){
+  const rows = state.products.map(p=>{
+    const cells = state.warehouses.map(w=>`<td class="right num">${stockAt(p.id,w.id)}</td>`).join('');
+    const total = totalStock(p.id);
+    const low = total<=p.minStock;
+    return `<tr><td><strong>${esc(p.name)}</strong></td>${cells}<td class="right num">${total}${low?' <span class="badge red">Low</span>':''}</td></tr>`;
+  }).join('');
+
+  const ledgerRows = [...state.ledger].sort((a,b)=>new Date(b.ts)-new Date(a.ts)).slice(0,60).map(l=>`
+    <tr>
+      <td>${fmtDateTime(l.ts)}</td>
+      <td><span class="badge gray">${esc(l.type)}</span></td>
+      <td>${esc(pname(l.productId))}</td>
+      <td>${esc(wname(l.warehouseId))}</td>
+      <td>${l.dir==='in'?'<span class="badge green">IN</span>':'<span class="badge amber">OUT</span>'}</td>
+      <td class="right num">${l.qty}</td>
+      <td>${esc(l.refNo)}</td>
+      <td>${esc(l.user)}</td>
+      <td>${esc(l.remarks||'')}</td>
+    </tr>`).join('');
+
+  return `
+    <div class="card" style="margin-bottom:18px;">
+      <div class="section-title">Warehouse-wise stock<button class="btn secondary sm" onclick="openStockAdjustModal()">Stock Adjustment</button></div>
+      <table><thead><tr><th>Product</th>${state.warehouses.map(w=>`<th class="right">${esc(w.name)}</th>`).join('')}<th class="right">Total</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan="10">No products yet.</td></tr>'}</tbody></table>
+    </div>
+    <div class="card">
+      <div class="section-title">Stock ledger <span class="tag-line">Transactions are permanent — corrections are recorded as reversing entries, never deleted.</span></div>
+      <table><thead><tr><th>Timestamp</th><th>Type</th><th>Product</th><th>Warehouse</th><th>Dir</th><th class="right">Qty</th><th>Ref</th><th>User</th><th>Remarks</th></tr></thead>
+      <tbody>${ledgerRows || '<tr><td colspan="9">No transactions yet.</td></tr>'}</tbody></table>
+    </div>`;
+}
+
+function openStockAdjustModal(){
+  const body = `
+    <div class="flow-note">Use this only for physical stock corrections (breakage, count mismatch). A reason is required and it is logged in the audit trail.</div>
+    <div class="field-row">
+      <div class="field"><label>Product</label><select id="f_prod">${productOptions(null)}</select></div>
+      <div class="field"><label>Warehouse</label><select id="f_wh">${warehouseOptions(null)}</select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Direction</label><select id="f_dir"><option value="in">Increase (found stock)</option><option value="out">Decrease (loss/damage)</option></select></div>
+      <div class="field"><label>Quantity</label><input id="f_qty" type="number" min="0" step="0.01"></div>
+    </div>
+    <div class="field"><label>Reason (required)</label><input id="f_reason" placeholder="e.g. Physical count shortfall — bag torn in storage"></div>`;
+  openModal('Stock Adjustment', null, body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="submitStockAdjust()">Save Adjustment</button>`);
+}
+function submitStockAdjust(){
+  const prod=fv('f_prod'), wh=fv('f_wh'), dir=fv('f_dir'), qty=fvNum('f_qty'), reason=fv('f_reason').trim();
+  if(qty<=0) return modalErr('Quantity must be greater than zero.');
+  if(!reason) return modalErr('A reason is required for every stock adjustment.');
+  if(dir==='out' && stockAt(prod,wh) < qty) return modalErr(`Cannot reduce below zero. Available stock: ${stockAt(prod,wh)}.`);
+  addLedger({productId:prod,warehouseId:wh,qty,dir,type:'Adjustment',refNo:'ADJ',remarks:reason});
+  persist(); closeModal(); render();
+  toast('Stock adjustment recorded.');
+}
+
+/* ============================= WAREHOUSES ============================= */
+function renderWarehouses(actions){
+  actions.innerHTML = `<button class="btn" onclick="openWarehouseModal()">+ New Warehouse</button>`;
+  if(!state.warehouses.length) return `<div class="empty">No warehouses yet.</div>`;
+  const cards = state.warehouses.map(w=>{
+    const val = warehouseStockValue(w.id);
+    const inQty = state.ledger.filter(l=>l.warehouseId===w.id && l.dir==='in').reduce((s,l)=>s+l.qty,0);
+    const outQty = state.ledger.filter(l=>l.warehouseId===w.id && l.dir==='out').reduce((s,l)=>s+l.qty,0);
+    return `<div class="card" style="min-width:280px;flex:1;">
+      <div class="section-title">${esc(w.name)} ${w.isShop?'<span class="badge amber">Shop</span>':''} <button class="btn secondary sm" onclick="openWarehouseModal('${w.id}')">Edit</button></div>
+      <div class="tag-line" style="margin-bottom:10px;">${esc(w.address)}</div>
+      <div class="row" style="gap:20px;">
+        <div><div class="kpi-label" style="font-size:11px;color:var(--ink-soft);">Stock Value</div><div class="num" style="font-weight:700;">${moneyShort(val)}</div></div>
+        <div><div style="font-size:11px;color:var(--ink-soft);">Total In</div><div class="num">${inQty}</div></div>
+        <div><div style="font-size:11px;color:var(--ink-soft);">Total Out</div><div class="num">${outQty}</div></div>
+      </div>
+      <div class="tag-line" style="margin-top:10px;">Contact: ${esc(w.contact)} · ${esc(w.phone)} · ${w.status==='Active'?'<span class="badge green">Active</span>':'<span class="badge gray">Inactive</span>'}</div>
+    </div>`;
+  }).join('');
+  return `<div class="row" style="align-items:stretch;">${cards}</div>`;
+}
+
+function openWarehouseModal(id){
+  const w = id ? byId(state.warehouses,id) : null;
+  const body = `
+    <div class="field"><label>Warehouse Name</label><input id="f_name" value="${w?esc(w.name):''}"></div>
+    <div class="field"><label>Address</label><textarea id="f_addr" rows="2">${w?esc(w.address):''}</textarea></div>
+    <div class="field-row">
+      <div class="field"><label>Contact Person</label><input id="f_contact" value="${w?esc(w.contact):''}"></div>
+      <div class="field"><label>Phone Number</label><input id="f_phone" value="${w?esc(w.phone):''}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Type</label><select id="f_isshop">
+        <option value="0" ${!w||!w.isShop?'selected':''}>Warehouse</option>
+        <option value="1" ${w&&w.isShop?'selected':''}>Retail Shop</option>
+      </select></div>
+      <div class="field"><label>Status</label><select id="f_status">
+        <option ${!w||w.status==='Active'?'selected':''}>Active</option>
+        <option ${w&&w.status==='Inactive'?'selected':''}>Inactive</option>
+      </select></div>
+    </div>`;
+  openModal(w?'Edit Warehouse':'New Warehouse', null, body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveWarehouse(${w?`'${w.id}'`:'null'})">Save</button>`);
+}
+function saveWarehouse(id){
+  const name=fv('f_name').trim(), addr=fv('f_addr').trim(), contact=fv('f_contact').trim(), phone=fv('f_phone').trim();
+  const isShop = fv('f_isshop')==='1', status=fv('f_status');
+  if(!name) return modalErr('Warehouse name is required.');
+  if(id){
+    Object.assign(byId(state.warehouses,id),{name,address:addr,contact,phone,isShop,status});
+    toast('Warehouse updated.');
+  } else {
+    state.warehouses.push({id:'WH'+pad(nextSeq('warehouse')),name,address:addr,contact,phone,isShop,status});
+    toast('Warehouse created.');
+  }
+  persist(); closeModal(); render();
+}
+
+/* ============================= TRANSFERS ============================= */
+function renderTransfers(actions){
+  actions.innerHTML = `<button class="btn" onclick="openTransferModal()">+ New Transfer</button>`;
+  if(!state.transfers.length) return `<div class="empty">No transfers recorded yet.</div>`;
+  const rows = [...state.transfers].reverse().map(t=>`
+    <tr>
+      <td>${esc(t.transferNo)}</td><td>${fmtDate(t.date)}</td>
+      <td>${esc(wname(t.fromWarehouseId))}</td><td>${esc(wname(t.toWarehouseId))}</td>
+      <td>${esc(pname(t.productId))}</td><td class="right num">${t.qty} ${esc(t.unit)}</td>
+      <td>${esc(t.staff)}</td><td>${esc(t.remarks||'—')}</td>
+    </tr>`).join('');
+  return `<div class="card">
+    <div class="flow-note">Warehouse → Transfer Entry → Retail Shop. Transfers update inventory automatically and cannot be deleted, only viewed.</div>
+    <table><thead><tr><th>Transfer #</th><th>Date</th><th>From</th><th>To</th><th>Product</th><th class="right">Qty</th><th>Staff</th><th>Remarks</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function openTransferModal(){
+  if(state.warehouses.length<2) return toast('Add at least two warehouses first.', true);
+  const body = `
+    <div class="field-row">
+      <div class="field"><label>From Warehouse</label><select id="f_from" onchange="updateTransferStockHint()">${warehouseOptions(null,false)}</select></div>
+      <div class="field"><label>To (Shop / Warehouse)</label><select id="f_to">${warehouseOptions(null,true)}</select></div>
+    </div>
+    <div class="field"><label>Product</label><select id="f_prod" onchange="updateTransferStockHint()">${productOptions(null)}</select></div>
+    <div id="stockHint" class="hint"></div>
+    <div class="field-row">
+      <div class="field"><label>Quantity</label><input id="f_qty" type="number" min="0" step="0.01"></div>
+      <div class="field"><label>Staff</label><input id="f_staff" placeholder="Handled by"></div>
+    </div>
+    <div class="field"><label>Remarks</label><input id="f_rem" placeholder="optional"></div>`;
+  openModal('New Warehouse Transfer', null, body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="submitTransfer()">Create Transfer</button>`);
+  setTimeout(updateTransferStockHint, 0);
+}
+function updateTransferStockHint(){
+  const from = fv('f_from'), prod = fv('f_prod');
+  const hintEl = document.getElementById('stockHint');
+  if(hintEl && from && prod) hintEl.textContent = `Available at source: ${stockAt(prod,from)} units`;
+}
+function submitTransfer(){
+  const from=fv('f_from'), to=fv('f_to'), prod=fv('f_prod'), qty=fvNum('f_qty'), staff=fv('f_staff').trim(), rem=fv('f_rem').trim();
+  if(from===to) return modalErr('Source and destination cannot be the same.');
+  if(qty<=0) return modalErr('Quantity must be greater than zero.');
+  const avail = stockAt(prod,from);
+  if(qty>avail) return modalErr(`Cannot transfer more than available stock. Available: ${avail}.`);
+  if(!staff) return modalErr('Staff name is required.');
+  const id='TR'+pad(nextSeq('transfer'));
+  const unit = byId(state.products,prod).sellingUnit;
+  state.transfers.push({id,transferNo:'TRF-'+pad(state.seq.transfer),date:todayStr(),fromWarehouseId:from,toWarehouseId:to,productId:prod,qty,unit,staff,remarks:rem});
+  addLedger({productId:prod,warehouseId:from,qty,dir:'out',type:'Transfer',refNo:id,remarks:'Transfer to '+wname(to)});
+  addLedger({productId:prod,warehouseId:to,qty,dir:'in',type:'Transfer',refNo:id,remarks:'Received from '+wname(from)});
+  persist(); closeModal(); render();
+  toast('Transfer '+state.transfers[state.transfers.length-1].transferNo+' created.');
+}
+
+/* ============================= LOOSE PACKING ============================= */
+function renderPacking(actions){
+  actions.innerHTML = `<button class="btn" onclick="openPackingModal()">+ New Packing Run</button>`;
+  if(!state.packing.length) return `<div class="empty">No packing runs recorded yet.</div>`;
+  const rows = [...state.packing].reverse().map(p=>`
+    <tr>
+      <td>${esc(p.packNo)}</td><td>${fmtDate(p.date)}</td><td>${esc(wname(p.warehouseId))}</td>
+      <td>${esc(pname(p.bulkProductId))}</td><td class="right num">${p.bulkQty}</td>
+      <td>${esc(p.packSizeLabel)}</td><td class="right num">${p.numPacks}</td>
+      <td>${esc(pname(p.resultProductId))}</td><td>${esc(p.staff)}</td>
+    </tr>`).join('');
+  return `<div class="card">
+    <div class="flow-note">50kg Bag → 5kg → 1kg → 500gm. Bulk stock is reduced and loose stock is increased automatically.</div>
+    <table><thead><tr><th>Pack #</th><th>Date</th><th>Warehouse</th><th>Bulk Product</th><th class="right">Bulk Qty Used</th><th>Pack Size</th><th class="right">Packs Produced</th><th>Loose Product</th><th>Staff</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function openPackingModal(){
+  const body = `
+    <div class="field-row">
+      <div class="field"><label>Warehouse / Shop</label><select id="f_wh" onchange="updatePackingHint()">${warehouseOptions(null)}</select></div>
+      <div class="field"><label>Packing Date</label><input id="f_date" type="date" value="${todayStr()}"></div>
+    </div>
+    <div class="field"><label>Bulk Product (source)</label><select id="f_bulk" onchange="updatePackingHint()">${productOptions(null)}</select></div>
+    <div id="packHint" class="hint"></div>
+    <div class="field"><label>Bulk Quantity Consumed</label><input id="f_bulkqty" type="number" min="0" step="0.01"></div>
+    <div class="field-row">
+      <div class="field"><label>Loose Product (result)</label><select id="f_loose">${productOptions(null)}</select></div>
+      <div class="field"><label>Pack Size Label</label><input id="f_packsize" placeholder="e.g. 1kg"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Number of Packs Produced</label><input id="f_numpacks" type="number" min="0"></div>
+      <div class="field"><label>Packing Staff</label><input id="f_staff"></div>
+    </div>
+    <div class="field"><label>Remarks</label><input id="f_rem" placeholder="e.g. handling loss, wastage notes"></div>`;
+  openModal('New Loose Packing Run', 'Convert bulk bags into smaller retail packs', body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="submitPacking()">Record Packing</button>`);
+  setTimeout(updatePackingHint,0);
+}
+function updatePackingHint(){
+  const wh=fv('f_wh'), bulk=fv('f_bulk');
+  const el = document.getElementById('packHint');
+  if(el && wh && bulk) el.textContent = `Available bulk stock at ${wname(wh)}: ${stockAt(bulk,wh)} units`;
+}
+function submitPacking(){
+  const wh=fv('f_wh'), date=fv('f_date')||todayStr(), bulk=fv('f_bulk'), bulkQty=fvNum('f_bulkqty');
+  const loose=fv('f_loose'), packSize=fv('f_packsize').trim(), numPacks=fvNum('f_numpacks'), staff=fv('f_staff').trim(), rem=fv('f_rem').trim();
+  if(bulk===loose) return modalErr('Bulk product and resulting loose product must be different.');
+  if(bulkQty<=0) return modalErr('Bulk quantity consumed must be greater than zero.');
+  if(numPacks<=0) return modalErr('Number of packs produced must be greater than zero.');
+  if(!packSize) return modalErr('Pack size label is required.');
+  if(!staff) return modalErr('Packing staff is required.');
+  const avail = stockAt(bulk,wh);
+  if(bulkQty>avail) return modalErr(`Cannot consume more bulk stock than available. Available: ${avail}.`);
+  const id='PK'+pad(nextSeq('packing'));
+  state.packing.push({id,packNo:'PKG-'+pad(state.seq.packing),date,warehouseId:wh,bulkProductId:bulk,bulkQty,packSizeLabel:packSize,numPacks,resultProductId:loose,staff,remarks:rem});
+  addLedger({productId:bulk,warehouseId:wh,qty:bulkQty,dir:'out',type:'Packing',refNo:id,remarks:'Consumed for packing '+state.packing[state.packing.length-1].packNo});
+  addLedger({productId:loose,warehouseId:wh,qty:numPacks,dir:'in',type:'Packing',refNo:id,remarks:'Produced by packing '+state.packing[state.packing.length-1].packNo});
+  persist(); closeModal(); render();
+  toast('Packing run '+state.packing[state.packing.length-1].packNo+' recorded.');
+}
+
+/* ============================= CUSTOMERS ============================= */
+function renderCustomers(actions){
+  actions.innerHTML = `<button class="btn" onclick="openCustomerModal()">+ New Customer</button>`;
+  if(!state.customers.length) return `<div class="empty">No customers yet.</div>`;
+  const rows = state.customers.map(c=>{
+    const out = customerOutstanding(c.id);
+    const overLimit = out > c.creditLimit && c.creditLimit>0;
+    return `<tr>
+      <td>${esc(c.code)}</td><td><strong>${esc(c.name)}</strong></td><td>${esc(c.phone)}</td>
+      <td>${c.gstRequired?'<span class="badge amber">GST</span>':'<span class="badge gray">Non-GST</span>'}</td>
+      <td class="right num">${money(c.creditLimit)}</td><td class="right num">${c.creditDays}d</td>
+      <td class="right num">${money(out)} ${overLimit?'<span class="badge red">Over Limit</span>':''}</td>
+      <td>${c.status==='Active'?'<span class="badge green">Active</span>':'<span class="badge gray">Inactive</span>'}</td>
+      <td><button class="btn secondary sm" onclick="openCustomerLedger('${c.id}')">Ledger</button>
+          <button class="btn secondary sm" onclick="openCustomerModal('${c.id}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+  return `<div class="card"><table><thead><tr>
+    <th>Code</th><th>Name</th><th>Phone</th><th>GST</th><th class="right">Credit Limit</th><th class="right">Credit Days</th>
+    <th class="right">Outstanding</th><th>Status</th><th>Actions</th>
+  </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function openCustomerModal(id){
+  const c = id ? byId(state.customers,id) : null;
+  const body = `
+    <div class="field-row">
+      <div class="field"><label>Customer Name</label><input id="f_name" value="${c?esc(c.name):''}"></div>
+      <div class="field"><label>Business Name</label><input id="f_biz" value="${c?esc(c.businessName):''}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Phone</label><input id="f_phone" value="${c?esc(c.phone):''}"></div>
+      <div class="field"><label>Email</label><input id="f_email" value="${c?esc(c.email):''}"></div>
+    </div>
+    <div class="field"><label>Address</label><textarea id="f_addr" rows="2">${c?esc(c.address):''}</textarea></div>
+    <div class="field-row">
+      <div class="field"><label>GST Number</label><input id="f_gst" value="${c?esc(c.gst):''}"></div>
+      <div class="field"><label>PAN</label><input id="f_pan" value="${c?esc(c.pan):''}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Credit Limit (₹)</label><input id="f_limit" type="number" value="${c?c.creditLimit:0}"></div>
+      <div class="field"><label>Credit Days</label><input id="f_days" type="number" value="${c?c.creditDays:0}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>GST Invoice Required</label><select id="f_gstreq">
+        <option value="1" ${c&&c.gstRequired?'selected':''}>Yes</option>
+        <option value="0" ${!c||!c.gstRequired?'selected':''}>No</option>
+      </select></div>
+      <div class="field"><label>Status</label><select id="f_status">
+        <option ${!c||c.status==='Active'?'selected':''}>Active</option>
+        <option ${c&&c.status==='Inactive'?'selected':''}>Inactive</option>
+      </select></div>
+    </div>`;
+  openModal(c?'Edit Customer':'New Customer', null, body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCustomer(${c?`'${c.id}'`:'null'})">Save</button>`);
+}
+function saveCustomer(id){
+  const name=fv('f_name').trim(); if(!name) return modalErr('Customer name is required.');
+  const data = {
+    name, businessName:fv('f_biz').trim(), phone:fv('f_phone').trim(), email:fv('f_email').trim(),
+    address:fv('f_addr').trim(), gst:fv('f_gst').trim(), pan:fv('f_pan').trim(),
+    creditLimit:fvNum('f_limit'), creditDays:fvNum('f_days'), gstRequired: fv('f_gstreq')==='1', status: fv('f_status')
+  };
+  if(id){ Object.assign(byId(state.customers,id), data); toast('Customer updated.'); }
+  else {
+    const newId='CU'+pad(nextSeq('customer'));
+    state.customers.push({id:newId, code:'CUS-'+pad(state.seq.customer,2), ...data});
+    toast('Customer created.');
+  }
+  persist(); closeModal(); render();
+}
+
+function openCustomerLedger(id){
+  const c = byId(state.customers,id);
+  const invs = customerInvoices(id).map(inv=>({date:inv.date,type:'Invoice',ref:inv.invoiceNo,debit:inv.total,credit:0}));
+  const pays = customerPayments(id).map(p=>({date:p.date,type:'Payment',ref:p.receiptNo,debit:0,credit:p.amount}));
+  const entries = [...invs,...pays].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  let bal=0;
+  const rows = entries.map(e=>{ bal += e.debit - e.credit; return `<tr><td>${fmtDate(e.date)}</td><td>${e.type}</td><td>${esc(e.ref)}</td>
+    <td class="right num">${e.debit?money(e.debit):'—'}</td><td class="right num">${e.credit?money(e.credit):'—'}</td><td class="right num">${money(bal)}</td></tr>`; }).join('');
+  const body = `
+    <div class="hint" style="margin-bottom:10px;">Credit limit ${money(c.creditLimit)} · Credit days ${c.creditDays} · Current outstanding <strong>${money(customerOutstanding(id))}</strong></div>
+    <div style="max-height:340px;overflow-y:auto;">
+    <table><thead><tr><th>Date</th><th>Type</th><th>Ref</th><th class="right">Debit</th><th class="right">Credit</th><th class="right">Balance</th></tr></thead>
+    <tbody>${rows || '<tr><td colspan="6">No transactions yet.</td></tr>'}</tbody></table></div>`;
+  openModal(`Ledger — ${esc(c.name)}`, esc(c.businessName), body, `<button class="btn secondary" onclick="closeModal()">Close</button>`);
+}
+
+/* ============================= SALES ============================= */
+function renderSales(actions){
+  actions.innerHTML = `<button class="btn" onclick="openSaleModal()">+ New Sales Invoice</button>`;
+  if(!state.sales.length) return `<div class="empty">No sales invoices yet.</div>`;
+  const rows = [...state.sales].reverse().map(s=>{
+    const bal = invoiceBalance(s);
+    const st = bal<=0 ? '<span class="badge green">Paid</span>' : (invoicePaid(s.id)>0 ? '<span class="badge amber">Partial</span>' : '<span class="badge red">Unpaid</span>');
+    return `<tr>
+      <td>${esc(s.invoiceNo)}</td><td>${fmtDate(s.date)}</td><td>${esc(cname(s.customerId))}</td>
+      <td>${esc(wname(s.warehouseId))}</td><td>${s.items.length} item(s)</td>
+      <td>${s.paymentType==='Credit'?'<span class="badge amber">Credit</span>':'<span class="badge green">Cash</span>'}</td>
+      <td>${s.gstApplied?'<span class="badge amber">GST</span>':'<span class="badge gray">No GST</span>'}</td>
+      <td class="right num">${money(s.total)}</td><td class="right num">${money(bal)}</td><td>${st}</td>
+      <td><button class="btn secondary sm" onclick="viewInvoice('${s.id}')">View</button></td>
+    </tr>`;
+  }).join('');
+  return `<div class="card"><table><thead><tr>
+    <th>Invoice #</th><th>Date</th><th>Customer</th><th>Warehouse</th><th>Items</th><th>Payment</th><th>GST</th>
+    <th class="right">Total</th><th class="right">Balance</th><th>Status</th><th>Actions</th>
+  </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+let saleDraft = {items:[]};
+function openSaleModal(){
+  if(!state.customers.length) return toast('Add a customer first.', true);
+  if(!state.products.length) return toast('Add a product first.', true);
+  saleDraft = {items:[{productId:state.products[0].id, qty:1, rate:state.products[0].sellingPrice, discountPct:0}]};
+  const body = `
+    <div class="field-row">
+      <div class="field"><label>Customer</label><select id="f_cust" onchange="onSaleCustomerChange()">${customerOptions(null)}</select></div>
+      <div class="field"><label>Warehouse</label><select id="f_wh">${warehouseOptions(null)}</select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Date</label><input id="f_date" type="date" value="${todayStr()}"></div>
+      <div class="field"><label>Salesman</label><input id="f_salesman"></div>
+      <div class="field"><label>Payment Type</label><select id="f_paytype"><option>Cash</option><option>Credit</option></select></div>
+    </div>
+    <div class="field"><label>Line Items</label><div id="saleItemsBox"></div>
+      <button class="btn secondary sm" style="margin-top:6px;" onclick="addSaleItem()">+ Add Line</button>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>GST</label><select id="f_gstapplied" onchange="refreshSaleTotals()">
+        <option value="1">Apply GST</option><option value="0">No GST</option>
+      </select></div>
+      <div class="field"><label>GST %</label><input id="f_gstpct" type="number" value="18" oninput="refreshSaleTotals()"></div>
+    </div>
+    <div id="saleTotals" class="hint" style="font-size:13px;"></div>`;
+  openModal('New Sales Invoice', null, body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="submitSale()">Create Invoice</button>`);
+  renderSaleItems();
+  onSaleCustomerChange();
+}
+function onSaleCustomerChange(){
+  const cust = byId(state.customers, fv('f_cust'));
+  if(cust){
+    document.getElementById('f_gstapplied').value = cust.gstRequired ? '1' : '0';
+  }
+  refreshSaleTotals();
+}
+function renderSaleItems(){
+  const box = document.getElementById('saleItemsBox');
+  box.innerHTML = saleDraft.items.map((it,idx)=>`
+    <div class="field-row" style="align-items:flex-end;margin-bottom:6px;">
+      <div class="field" style="flex:2;margin-bottom:0;"><select onchange="updateSaleItem(${idx},'productId',this.value)">${productOptions(it.productId)}</select></div>
+      <div class="field" style="margin-bottom:0;"><input type="number" min="0" step="0.01" value="${it.qty}" placeholder="Qty" oninput="updateSaleItem(${idx},'qty',this.value)"></div>
+      <div class="field" style="margin-bottom:0;"><input type="number" min="0" step="0.01" value="${it.rate}" placeholder="Rate" oninput="updateSaleItem(${idx},'rate',this.value)"></div>
+      <div class="field" style="margin-bottom:0;"><input type="number" min="0" max="100" value="${it.discountPct}" placeholder="Disc %" oninput="updateSaleItem(${idx},'discountPct',this.value)"></div>
+      <button class="btn secondary sm" onclick="removeSaleItem(${idx})" ${saleDraft.items.length===1?'disabled':''}>✕</button>
+    </div>`).join('');
+  refreshSaleTotals();
+}
+function addSaleItem(){ saleDraft.items.push({productId:state.products[0].id, qty:1, rate:state.products[0].sellingPrice, discountPct:0}); renderSaleItems(); }
+function removeSaleItem(idx){ saleDraft.items.splice(idx,1); renderSaleItems(); }
+function updateSaleItem(idx, field, val){
+  saleDraft.items[idx][field] = (field==='productId') ? val : Number(val)||0;
+  if(field==='productId'){ saleDraft.items[idx].rate = byId(state.products,val).sellingPrice; renderSaleItems(); return; }
+  refreshSaleTotals();
+}
+function saleCalc(){
+  const gstOn = fv('f_gstapplied')==='1';
+  const gstPct = fvNum('f_gstpct');
+  let sub=0;
+  for(const it of saleDraft.items){ const line=it.qty*it.rate; sub += line - (line*it.discountPct/100); }
+  const gstAmt = gstOn ? sub*gstPct/100 : 0;
+  return {sub, gstAmt, total: sub+gstAmt, gstOn, gstPct};
+}
+function refreshSaleTotals(){
+  const el = document.getElementById('saleTotals');
+  if(!el) return;
+  const {sub,gstAmt,total,gstOn} = saleCalc();
+  el.innerHTML = `Subtotal: <strong>${money(sub)}</strong> &nbsp;·&nbsp; GST${gstOn?'':' (not applied)'}: <strong>${money(gstAmt)}</strong> &nbsp;·&nbsp; <span style="color:var(--teal);">Total: <strong>${money(total)}</strong></span>`;
+}
+function submitSale(){
+  const custId=fv('f_cust'), wh=fv('f_wh'), date=fv('f_date')||todayStr(), salesman=fv('f_salesman').trim(), paytype=fv('f_paytype');
+  if(!custId) return modalErr('Select a customer.');
+  if(!wh) return modalErr('Select a warehouse.');
+  if(!salesman) return modalErr('Salesman name is required.');
+  if(!saleDraft.items.length) return modalErr('Add at least one line item.');
+  for(const it of saleDraft.items){
+    if(it.qty<=0) return modalErr('All line item quantities must be greater than zero.');
+    const avail = stockAt(it.productId, wh);
+    if(it.qty > avail) return modalErr(`Insufficient stock for ${pname(it.productId)} at ${wname(wh)}. Available: ${avail}.`);
+  }
+  const {sub,gstAmt,total,gstOn,gstPct} = saleCalc();
+  const id='SA'+pad(nextSeq('sale'));
+  state.sales.push({id,invoiceNo:'INV-'+pad(state.seq.sale),date,customerId:custId,warehouseId:wh,salesman,paymentType:paytype,
+    gstApplied:gstOn,gstPct, items:saleDraft.items.map(it=>({...it})), subtotal:sub, gstAmt, total});
+  for(const it of saleDraft.items){
+    addLedger({productId:it.productId,warehouseId:wh,qty:it.qty,dir:'out',type:'Sale',refNo:id,remarks:'Sold via '+state.sales[state.sales.length-1].invoiceNo});
+  }
+  persist(); closeModal(); render();
+  toast('Invoice '+state.sales[state.sales.length-1].invoiceNo+' created — total '+money(total)+'.');
+}
+
+function viewInvoice(id){
+  const s = byId(state.sales,id);
+  const rows = s.items.map(it=>{ const line=it.qty*it.rate; const disc=line*it.discountPct/100;
+    return `<tr><td>${esc(pname(it.productId))}</td><td class="right num">${it.qty}</td><td class="right num">${money(it.rate)}</td><td class="right num">${it.discountPct}%</td><td class="right num">${money(line-disc)}</td></tr>`; }).join('');
+  const paid = invoicePaid(id);
+  const body = `
+    <div class="hint" style="margin-bottom:10px;">${esc(cname(s.customerId))} · ${fmtDate(s.date)} · ${esc(wname(s.warehouseId))} · Salesman: ${esc(s.salesman)} · ${s.paymentType}</div>
+    <table><thead><tr><th>Product</th><th class="right">Qty</th><th class="right">Rate</th><th class="right">Disc</th><th class="right">Line Total</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <div class="hint" style="margin-top:10px;text-align:right;">
+      Subtotal ${money(s.subtotal)} &nbsp; GST(${s.gstPct}%) ${money(s.gstAmt)} &nbsp; <strong>Total ${money(s.total)}</strong><br>
+      Paid ${money(paid)} · Balance <strong>${money(s.total-paid)}</strong>
+    </div>`;
+  openModal(`Invoice ${esc(s.invoiceNo)}`, null, body, `<button class="btn secondary" onclick="closeModal()">Close</button>`);
+}
+
+/* ============================= PAYMENTS ============================= */
+function renderPayments(actions){
+  actions.innerHTML = `<button class="btn" onclick="openPaymentModal()">+ Record Payment</button>`;
+  if(!state.payments.length) return `<div class="empty">No payments recorded yet.</div>`;
+  const rows = [...state.payments].reverse().map(p=>`
+    <tr><td>${esc(p.receiptNo)}</td><td>${fmtDate(p.date)}</td><td>${esc(cname(p.customerId))}</td>
+    <td>${p.invoiceId?esc(byId(state.sales,p.invoiceId)?.invoiceNo||'—'):'On Account'}</td>
+    <td class="right num">${money(p.amount)}</td><td>${esc(p.mode)}</td><td>${esc(p.refNo||'—')}</td><td>${esc(p.collectedBy)}</td></tr>`).join('');
+  return `<div class="card"><table><thead><tr>
+    <th>Receipt #</th><th>Date</th><th>Customer</th><th>Against Invoice</th><th class="right">Amount</th><th>Mode</th><th>Reference</th><th>Collected By</th>
+  </tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+function openPaymentModal(){
+  if(!state.customers.length) return toast('Add a customer first.', true);
+  const body = `
+    <div class="field-row">
+      <div class="field"><label>Customer</label><select id="f_cust" onchange="onPaymentCustomerChange()">${customerOptions(null)}</select></div>
+      <div class="field"><label>Date</label><input id="f_date" type="date" value="${todayStr()}"></div>
+    </div>
+    <div class="field"><label>Against Invoice</label><select id="f_inv"><option value="">On Account (not linked to a specific invoice)</option></select></div>
+    <div class="field-row">
+      <div class="field"><label>Amount (₹)</label><input id="f_amt" type="number" min="0" step="0.01"></div>
+      <div class="field"><label>Mode</label><select id="f_mode"><option>Cash</option><option>UPI</option><option>Cheque</option><option>Bank Transfer</option></select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Reference Number</label><input id="f_ref" placeholder="UTR / Cheque no."></div>
+      <div class="field"><label>Collected By</label><input id="f_collectedby"></div>
+    </div>
+    <div class="field"><label>Remarks</label><input id="f_rem" placeholder="optional"></div>`;
+  openModal('Record Payment Collection', 'Supports partial and advance payments', body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="submitPayment()">Save Payment</button>`);
+  onPaymentCustomerChange();
+}
+function onPaymentCustomerChange(){
+  const cid = fv('f_cust');
+  const sel = document.getElementById('f_inv');
+  const invs = customerInvoices(cid).filter(i=>invoiceBalance(i)>0.005);
+  sel.innerHTML = `<option value="">On Account (not linked to a specific invoice)</option>` +
+    invs.map(i=>`<option value="${i.id}">${esc(i.invoiceNo)} — Balance ${money(invoiceBalance(i))}</option>`).join('');
+}
+function submitPayment(){
+  const cid=fv('f_cust'), date=fv('f_date')||todayStr(), invId=fv('f_inv'), amt=fvNum('f_amt'), mode=fv('f_mode'), ref=fv('f_ref').trim(), by=fv('f_collectedby').trim(), rem=fv('f_rem').trim();
+  if(amt<=0) return modalErr('Amount must be greater than zero.');
+  if(!by) return modalErr('Collected By is required.');
+  const id='PY'+pad(nextSeq('payment'));
+  state.payments.push({id,receiptNo:'RCPT-'+pad(state.seq.payment),date,customerId:cid,invoiceId:invId||null,amount:amt,mode,refNo:ref,collectedBy:by,remarks:rem});
+  persist(); closeModal(); render();
+  toast('Payment '+state.payments[state.payments.length-1].receiptNo+' recorded — '+money(amt)+'.');
+}
+
+/* ============================= DISPATCH ============================= */
+const DISPATCH_STATUSES = ['Ready','Dispatched','Transit','Delivered','Returned'];
+function statusBadge(s){
+  const cls = s==='Delivered'?'green': s==='Returned'?'red': s==='Ready'?'gray':'amber';
+  return `<span class="badge ${cls}">${s}</span>`;
+}
+function renderDispatch(actions){
+  actions.innerHTML = `<button class="btn" onclick="openDispatchModal()">+ New Dispatch</button>`;
+  if(!state.dispatch.length) return `<div class="empty">No dispatches recorded yet.</div>`;
+  const rows = [...state.dispatch].reverse().map(d=>`
+    <tr>
+      <td>${esc(d.dispatchNo)}</td><td>${esc(byId(state.sales,d.invoiceId)?.invoiceNo||'—')}</td><td>${esc(cname(d.customerId))}</td>
+      <td>${esc(d.transportCompany)}</td><td>${esc(d.vehicleNo)}</td><td>${esc(d.lrNo)}</td>
+      <td class="right num">${money(d.freight)} (${esc(d.freightType)})</td>
+      <td>${esc(d.staffName)}</td><td>${statusBadge(d.status)}</td>
+      <td>${advanceStatusButton(d)}</td>
+    </tr>`).join('');
+  return `<div class="card">
+    <div class="flow-note">Every dispatch requires staff name, dispatch time and approver — full accountability chain per shipment.</div>
+    <table><thead><tr><th>Dispatch #</th><th>Invoice</th><th>Customer</th><th>Transport Co.</th><th>Vehicle</th><th>LR #</th><th class="right">Freight</th><th>Staff</th><th>Status</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+function advanceStatusButton(d){
+  const idx = DISPATCH_STATUSES.indexOf(d.status);
+  if(idx<0 || idx>=DISPATCH_STATUSES.length-1) return '';
+  const next = DISPATCH_STATUSES[idx+1];
+  return `<button class="btn secondary sm" onclick="advanceDispatch('${d.id}')">Mark ${next}</button>`;
+}
+function advanceDispatch(id){
+  const d = byId(state.dispatch,id);
+  const idx = DISPATCH_STATUSES.indexOf(d.status);
+  if(idx<DISPATCH_STATUSES.length-1){ d.status = DISPATCH_STATUSES[idx+1]; persist(); render(); toast('Dispatch '+d.dispatchNo+' marked '+d.status+'.'); }
+}
+
+function openDispatchModal(){
+  const undispatched = state.sales.filter(s=> !state.dispatch.some(d=>d.invoiceId===s.id));
+  if(!undispatched.length) return toast('No invoices pending dispatch.', true);
+  const body = `
+    <div class="field"><label>Sales Invoice</label><select id="f_inv" onchange="onDispatchInvoiceChange()">
+      ${undispatched.map(s=>`<option value="${s.id}">${esc(s.invoiceNo)} — ${esc(cname(s.customerId))} — ${money(s.total)}</option>`).join('')}
+    </select></div>
+    <div class="field"><label>Destination</label><input id="f_dest"></div>
+    <div class="field-row">
+      <div class="field"><label>Transport Company</label><input id="f_transport"></div>
+      <div class="field"><label>Vehicle Number</label><input id="f_vehicle"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Driver Name</label><input id="f_driver"></div>
+      <div class="field"><label>Driver Phone</label><input id="f_driverphone"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>LR Number</label><input id="f_lr"></div>
+      <div class="field"><label>Freight (₹)</label><input id="f_freight" type="number" min="0" step="0.01" value="0"></div>
+      <div class="field"><label>Freight Type</label><select id="f_freighttype"><option>Paid</option><option>To Pay</option></select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Dispatch Staff</label><input id="f_staffname"></div>
+      <div class="field"><label>Approved By</label><input id="f_approvedby"></div>
+    </div>
+    <div class="field"><label>Remarks</label><input id="f_rem" placeholder="optional"></div>`;
+  openModal('New Dispatch Entry', null, body,
+    `<button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="submitDispatch()">Create Dispatch</button>`);
+  onDispatchInvoiceChange();
+}
+function onDispatchInvoiceChange(){
+  const s = byId(state.sales, fv('f_inv'));
+  const c = s ? byId(state.customers, s.customerId) : null;
+  if(c) document.getElementById('f_dest').value = c.address || c.name;
+}
+function submitDispatch(){
+  const invId=fv('f_inv'); const inv = byId(state.sales,invId);
+  const dest=fv('f_dest').trim(), transport=fv('f_transport').trim(), vehicle=fv('f_vehicle').trim();
+  const driver=fv('f_driver').trim(), driverphone=fv('f_driverphone').trim(), lr=fv('f_lr').trim();
+  const freight=fvNum('f_freight'), freighttype=fv('f_freighttype');
+  const staffname=fv('f_staffname').trim(), approvedby=fv('f_approvedby').trim(), rem=fv('f_rem').trim();
+  if(!dest) return modalErr('Destination is required.');
+  if(!transport) return modalErr('Transport company is required.');
+  if(!staffname) return modalErr('Dispatch staff name is required (accountability).');
+  if(!approvedby) return modalErr('Approved By is required (accountability).');
+  const id='DS'+pad(nextSeq('dispatch'));
+  state.dispatch.push({id,dispatchNo:'DSP-'+pad(state.seq.dispatch),invoiceId:invId,customerId:inv.customerId,destination:dest,
+    transportCompany:transport,vehicleNo:vehicle,driverName:driver,driverPhone:driverphone,lrNo:lr,freight,freightType:freighttype,
+    status:'Ready',staffName:staffname,staffId:'',dispatchTime:nowIso(),approvedBy:approvedby,remarks:rem});
+  persist(); closeModal(); render();
+  toast('Dispatch '+state.dispatch[state.dispatch.length-1].dispatchNo+' created.');
+}
+
+/* ============================= REPORTS ============================= */
+function renderReports(){
+  // Stock summary
+  const stockRows = state.products.map(p=>{
+    const st = totalStock(p.id);
+    return `<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td class="right num">${st}</td><td class="right num">${p.minStock}</td>
+      <td class="right num">${moneyShort(st*p.purchasePrice)}</td><td>${st<=p.minStock?'<span class="badge red">Reorder</span>':'<span class="badge green">OK</span>'}</td></tr>`;
+  }).join('');
+
+  // Sales summary
+  const totalSales = state.sales.reduce((s,x)=>s+x.total,0);
+  const totalGst = state.sales.reduce((s,x)=>s+x.gstAmt,0);
+  const salesByMonth = {};
+  for(const s of state.sales){ const m=s.date.slice(0,7); salesByMonth[m]=(salesByMonth[m]||0)+s.total; }
+
+  // Outstanding / ageing
+  const ageRows = state.customers.map(c=>{
+    const invs = customerInvoices(c.id).filter(i=>invoiceBalance(i)>0.005);
+    const buckets = {'0-30':0,'31-60':0,'61-90':0,'90+':0};
+    for(const inv of invs){ buckets[ageBucket(daysBetween(inv.date, todayStr()))] += invoiceBalance(inv); }
+    const total = Object.values(buckets).reduce((a,b)=>a+b,0);
+    if(total<=0.005) return '';
+    return `<tr><td>${esc(c.name)}</td><td class="right num">${money(buckets['0-30'])}</td><td class="right num">${money(buckets['31-60'])}</td>
+      <td class="right num">${money(buckets['61-90'])}</td><td class="right num">${money(buckets['90+'])}</td><td class="right num"><strong>${money(total)}</strong></td></tr>`;
+  }).join('');
+
+  // GST register
+  const gstInvoices = state.sales.filter(s=>s.gstApplied);
+  const nonGstInvoices = state.sales.filter(s=>!s.gstApplied);
+  const gstRows = gstInvoices.map(s=>`<tr><td>${esc(s.invoiceNo)}</td><td>${fmtDate(s.date)}</td><td>${esc(cname(s.customerId))}</td>
+    <td class="right num">${money(s.subtotal)}</td><td class="right num">${s.gstPct}%</td><td class="right num">${money(s.gstAmt)}</td><td class="right num">${money(s.total)}</td></tr>`).join('');
+
+  // Dispatch status counts
+  const dispatchCounts = {};
+  for(const st of DISPATCH_STATUSES) dispatchCounts[st] = state.dispatch.filter(d=>d.status===st).length;
+
+  return `
+    <div class="row" style="align-items:flex-start;">
+      <div class="card" style="flex:1;min-width:340px;">
+        <div class="section-title">Stock summary</div>
+        <table><thead><tr><th>Product</th><th>Category</th><th class="right">Stock</th><th class="right">Min</th><th class="right">Value</th><th>Status</th></tr></thead>
+        <tbody>${stockRows || '<tr><td colspan="6">No products yet.</td></tr>'}</tbody></table>
+      </div>
+      <div class="card" style="flex:1;min-width:280px;">
+        <div class="section-title">Sales summary</div>
+        <div class="kpi-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="kpi"><div class="label">Total Sales</div><div class="value">${moneyShort(totalSales)}</div><div class="sub">${state.sales.length} invoices</div></div>
+          <div class="kpi"><div class="label">Total GST Collected</div><div class="value">${moneyShort(totalGst)}</div><div class="sub">${gstInvoices.length} GST invoices</div></div>
+        </div>
+        <table><thead><tr><th>Month</th><th class="right">Sales</th></tr></thead>
+        <tbody>${Object.entries(salesByMonth).map(([m,v])=>`<tr><td>${m}</td><td class="right num">${money(v)}</td></tr>`).join('') || '<tr><td colspan="2">No sales yet.</td></tr>'}</tbody></table>
+      </div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="section-title">Outstanding & ageing report</div>
+      <table><thead><tr><th>Customer</th><th class="right">0-30 days</th><th class="right">31-60 days</th><th class="right">61-90 days</th><th class="right">90+ days</th><th class="right">Total Due</th></tr></thead>
+      <tbody>${ageRows || '<tr><td colspan="6">No outstanding balances.</td></tr>'}</tbody></table>
+    </div>
+    <div class="row" style="margin-top:18px;align-items:flex-start;">
+      <div class="card" style="flex:1.4;min-width:340px;">
+        <div class="section-title">GST register</div>
+        <table><thead><tr><th>Invoice</th><th>Date</th><th>Customer</th><th class="right">Taxable</th><th class="right">Rate</th><th class="right">GST</th><th class="right">Total</th></tr></thead>
+        <tbody>${gstRows || '<tr><td colspan="7">No GST invoices yet.</td></tr>'}</tbody></table>
+        <div class="tag-line" style="margin-top:8px;">${nonGstInvoices.length} non-GST invoice(s) issued separately.</div>
+      </div>
+      <div class="card" style="flex:1;min-width:260px;">
+        <div class="section-title">Dispatch status</div>
+        <table><thead><tr><th>Status</th><th class="right">Count</th></tr></thead>
+        <tbody>${DISPATCH_STATUSES.map(st=>`<tr><td>${statusBadge(st)}</td><td class="right num">${dispatchCounts[st]}</td></tr>`).join('')}</tbody></table>
+      </div>
+    </div>`;
+}
+
+/* ============================= INIT ============================= */
+async function init(){
+  await loadState();
+  if(!state.products.length && !state.warehouses.length){
+    seedDemoData();
+    persist();
+  }
+  go('dashboard');
+}
+init();
+</script>
+</body>
+</html>
