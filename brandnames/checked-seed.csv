@@ -1,0 +1,71 @@
+Name,Run,Verdict,Reason
+Stator,2026-10-01,DISCARD,.com taken; real EE word
+Statera,2026-10-01,DISCARD,.com taken; Statera Biopharma
+Tessera,2026-10-01,DISCARD,.com taken; Tessera Technologies (semiconductor IP)
+Kanso,2026-10-01,DISCARD,.com .ai .io all taken
+Tatara,2026-10-01,DISCARD,.com .ai .io all taken
+Varda,2026-10-01,DISCARD,.com taken; Varda Space Industries
+Yantra,2026-10-01,DISCARD,.com taken
+Basalt,2026-10-01,DISCARD,.com .ai .io all taken
+Strata,2026-10-01,DISCARD,.com taken; crowded
+Dorsa,2026-10-01,DISCARD,.com .ai .io all taken
+Gantry,2026-10-01,DISCARD,.com taken
+Pylon,2026-10-01,DISCARD,.com taken
+Tenon,2026-10-01,DISCARD,.com .ai .io all taken
+Meridon,2026-10-01,DISCARD,.com taken
+Caisson,2026-10-01,DISCARD,.com .ai .io all taken
+Fluxon,2026-10-01,DISCARD,.com taken
+Gradon,2026-10-01,DISCARD,.com taken
+Tanso,2026-10-01,DISCARD,.com taken
+Kordan,2026-10-01,DISCARD,.com taken
+Tavron,2026-10-01,DISCARD,.com taken
+Vardan,2026-10-01,DISCARD,.com taken
+Torvan,2026-10-01,DISCARD,.com taken
+Arcon,2026-10-01,DISCARD,.com taken
+Tempar,2026-10-01,DISCARD,.com taken
+Mensar,2026-10-01,DISCARD,.com taken
+Granis,2026-10-01,DISCARD,.com taken
+Kelvan,2026-10-01,DISCARD,.com taken
+Dravon,2026-10-01,DISCARD,.com taken
+Ordava,2026-10-01,DISCARD,.com taken
+Taksha,2026-10-01,DISCARD,.com taken
+Tektora,2026-10-01,DISCARD,Tektora Limited owns .com
+Statora,2026-10-01,WEAK,.ai .io free; pharma adjacency (Stator statin)
+Caldera,2026-10-01,DISCARD,all taken; Caldera Systems
+Granova,2026-10-01,DISCARD,Granova Chemicals Bangalore; granola echo
+Vertora,2026-10-01,SURVIVOR,.ai .io free; vertoramachines.com free
+Fulcra,2026-10-01,DISCARD,.com .ai .io all taken
+Tessara,2026-10-01,DISCARD,.com taken
+Kinetra,2026-10-01,DISCARD,.com .ai .io all taken
+Zanskar,2026-10-01,DISCARD,.com .ai .io all taken
+Baltoro,2026-10-01,DISCARD,.com .ai .io all taken
+Dravira,2026-10-01,DISCARD,.com taken
+Kelvara,2026-10-01,DISCARD,.com taken
+Stratan,2026-10-01,DISCARD,.com taken
+Nordova,2026-10-01,DISCARD,.com taken
+Torquis,2026-10-01,DISCARD,.com taken; Q spelling risk
+Pontara,2026-10-01,DISCARD,.com .ai .io all taken
+Valtora,2026-10-01,DISCARD,.com taken
+Zenvara,2026-10-01,DISCARD,.com taken
+Tessaron,2026-10-01,DISCARD,.com taken
+Tektonis,2026-10-01,DISCARD,.com taken
+Takshara,2026-10-01,WEAK,.ai .io free; reads regional not global
+Kelvaris,2026-10-01,DISCARD,.com taken
+Lumetron,2026-10-01,DISCARD,.com taken
+Stratova,2026-10-01,DISCARD,.com taken
+Granitar,2026-10-01,DISCARD,.com taken
+Kinetara,2026-10-01,DISCARD,.com taken
+Calibron,2026-10-01,DISCARD,.com taken
+Fluxaris,2026-10-01,DISCARD,.com taken
+Torquera,2026-10-01,DISCARD,.com taken
+Gradaris,2026-10-01,DISCARD,.com taken
+Raman,2026-10-01,CANDIDATE,raman.ai taken; ramanmachines.com free
+Kanad,2026-10-01,CANDIDATE,kanad.ai kanadlabs.com taken; kanadmachines.com free
+Monsoon,2026-10-01,CANDIDATE,monsoon.ai taken; monsoonmachines.com free
+Ferro,2026-10-01,CANDIDATE,ferromachines.com free
+Saha,2026-10-01,CANDIDATE,sahamachines.com free
+Ore,2026-10-01,CANDIDATE,oremachines.com free
+Torus,2026-10-01,DISCARD,torusmachines.com taken
+Quiet,2026-10-01,DISCARD,quietmachines.com and .ai taken
+Still,2026-10-01,DISCARD,stillmachines.com taken
+Salt,2026-10-01,DISCARD,saltmachines.com taken
